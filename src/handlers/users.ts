@@ -47,6 +47,7 @@ const create = async (req: Request, res: Response) => {
         res.json(token)
     } catch(err) {
         res.status(400)
+        console.log(err)
         res.json("Error: User not created, " + user)
     }
 }

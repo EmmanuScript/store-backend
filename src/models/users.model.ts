@@ -1,7 +1,7 @@
 import Client from '../database';
 import bcrypt from 'bcrypt';
 
-const saltRounds = process.env.SALT_ROUNDS
+const saltRounds: any = process.env.SALT_ROUNDS
 const pepper = process.env.BCRYPT_PASSWORD
 
 export type User = {
@@ -47,7 +47,7 @@ export class UserStore {
     try {
       // @ts-ignore
       const conn = await Client.connect()
-      const sql = 'INSERT INTO users (username, password_digest) VALUES($1, $2) RETURNING *'
+      const sql = 'INSERT INTO users (username, password) VALUES($1, $2) RETURNING *'
 
       const hash = bcrypt.hashSync(
         u.password + pepper, 
@@ -84,7 +84,7 @@ export class UserStore {
 
   async authenticate(username: string, password: string): Promise<User | null> {
     const conn = await Client.connect()
-    const sql = 'SELECT password_digest FROM users WHERE username=($1)'
+    const sql = 'SELECT password FROM users WHERE username=($1)'
 
     const result = await conn.query(sql, [username])
 
@@ -96,7 +96,7 @@ export class UserStore {
 
       console.log(user)
       
-      if (bcrypt.compareSync(password+pepper, user.password_digest)) {
+      if (bcrypt.compareSync(password+pepper, user.password)) {
         return user
       }
     }

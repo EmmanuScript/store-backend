@@ -2,17 +2,18 @@
   "name": "code-store",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
     "watch": "rimraf ./dist && tsc-watch --esModuleInterop src/server.ts --outDir ./dist --onSuccess 'node ./dist/server.js'",
     "dev-up": "db-migrate up -m ./_Database/migrations   --config ./_Database/config/dev.json",
     "dev-down": "db-migrate reset -m ./_Database/migrations  --config ./_Database/config/dev.json",
     "test-up": "db-migrate up -e test -m ./_Database/migrations   --config ./_Database/config/test.json ",
     "test-down": "db-migrate reset  -e test -m ./_Database/migrations  --config ./_Database/config/test.json",
-    "test": "npm run test-up && cross-env ENVI=test jasmine-ts && npm run test-down",
+    "build": "npx tsc",
+    "start": "npm run build && nodemon dist/server.js",
+    "test": "npm run build && npm run jasmine",
+    "jasmine": "jasmine",
     "lint": "eslint . --ext .ts",
-    "lint-fix": "eslint . --ext .ts --fix",
-    "tsc": "rimraf ./dist && tsc"
+    "prettify": "prettier --config .prettierrc.json 'src' --write"
   },
   "author": "",
   "license": "ISC",
@@ -33,6 +34,7 @@
     "@types/jsonwebtoken": "^9.0.1",
     "@types/pg": "^8.6.6",
     "bcrypt": "^5.1.0",
+    "nodemon": "^2.0.20",
     "tsc-watch": "^6.0.0"
   }
 }
