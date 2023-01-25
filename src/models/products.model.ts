@@ -2,7 +2,7 @@ import { PoolClient, QueryResult } from 'pg';
 import Client from '../database';
 
 export type Products = {
-    id?: string;
+    id?: number;
     name: string;
     price: string;
     category: string;
@@ -13,7 +13,7 @@ export class ProductStore {
   table: string = 'products';
 
   // select all products
-  async getProducts(): Promise<Products[][]> {
+  async getProducts(): Promise<Products[]> {
     try {
       const conn: PoolClient = await Client.connect();
       const sql: string = `SELECT * FROM ${this.table}`;
@@ -27,7 +27,7 @@ export class ProductStore {
   }
 
   // select product by id
-  async getProductById(productId: number): Promise<Products[]> {
+  async getProductById(productId: number): Promise<Products> {
     try {
       const conn: PoolClient = await Client.connect();
       const sql: string = `SELECT * FROM ${this.table} WHERE id=$1`;
@@ -41,7 +41,7 @@ export class ProductStore {
   }
 
   // select product by category
-  async getProductByCat(category: string): Promise<Products[][]> {
+  async getProdCategory(category: string): Promise<Products[][]> {
     try {
       const conn: PoolClient = await Client.connect();
       const sql: string = `SELECT * FROM ${this.table} WHERE category=$1`;
@@ -57,7 +57,7 @@ export class ProductStore {
   }
 
   // create product
-  async createProduct(product: Products): Promise<Products[]> {
+  async createProduct(product: Products): Promise<Products> {
     try {
       const { name, price, category } = product;
       const sql: string = `INSERT INTO ${this.table} (name, price, category) VALUES($1, $2, $3) RETURNING *`;

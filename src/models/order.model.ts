@@ -1,8 +1,8 @@
 import Client from '../database';
 
 export type Order = {
-    id?: string;
-    product_id: number;
+    id?: number;
+    products_id: number;
     quantity: number;
     user_id: number;
     status: string;
@@ -12,6 +12,22 @@ export type Order = {
 export class OrderStore {
   // define table
   table: string = 'orders';
+
+  //select all orders
+  async getAllOrders(): Promise<Order[]> {
+    try {
+      const conn = await Client.connect();
+      const sql = `SELECT * FROM ${this.table}`;
+      const result = await conn.query(sql);
+      conn.release();
+
+      return result.rows;
+    } catch (err) {
+      throw new Error(
+        `Could not get all orders of user. Error: ${err}}`
+      );
+    }
+  }
 
   // select all orders for a user
   async getOrders(userId: number): Promise<Order[]> {
@@ -43,51 +59,19 @@ export class OrderStore {
     }
   }
 
-  // Get active order by user id
-  async getActiveOrdersByUserId(userId: number): Promise<Order[][]> {
-    try {
-      const status = 'active';
-      const conn = await Client.connect();
-      const sql = `SELECT * FROM ${this.table} WHERE user_id = ${userId} AND status = $1`;
-      const result = await conn.query(sql, [status]);
-      conn.release();
+ 
 
-      return result.rows;
-    } catch (err) {
-      throw new Error(`Could not get active order. Error: ${(err)}`);
-    }
-  }
-
-  // select completed order by user id
-  async getCompletedOrdersByUserId(userId: number): Promise<Order[][]> {
-    try {
-      const status = 'complete';
-      const conn = await Client.connect();
-      const sql = `SELECT * FROM ${this.table} WHERE user_id = ${userId} AND status = $1`;
-      const result = await conn.query(sql, [status]);
-      conn.release();
-
-      return result.rows;
-    } catch (err) {
-      throw new Error(
-        `Could not get completed orders. Error: ${(err)}`
-      );
-    }
-  }
 
   // create an order
-  async createOrder(order: Order): Promise<Order[]> {
+  async createOrder(order: Order): Promise<Order> {
     try {
-      // eslint-disable-next-line camelcase
-      const { product_id, quantity, user_id, status } = order;
+      const { products_id, quantity, user_id, status } = order;
 
       const conn = await Client.connect();
-      const sql = `INSERT INTO ${this.table} (product_id, quantity, user_id, status) VALUES($1, $2, $3, $4) RETURNING *`;
+      const sql = `INSERT INTO ${this.table} (products_id, quantity, user_id, status) VALUES($1, $2, $3, $4) RETURNING *`;
       const result = await conn.query(sql, [
-        // eslint-disable-next-line camelcase
-        product_id,
+        products_id,
         quantity,
-        // eslint-disable-next-line camelcase
         user_id,
         status
       ]);

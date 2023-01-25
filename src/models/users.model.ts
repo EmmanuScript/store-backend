@@ -5,7 +5,7 @@ const saltRounds: any = process.env.SALT_ROUNDS
 const pepper = process.env.BCRYPT_PASSWORD
 
 export type User = {
-  id?: string;
+  id?: number;
   username: string;
   password: string;
 }
@@ -27,7 +27,7 @@ export class UserStore {
     } 
   }
 
-  async show(id: string): Promise<User> {
+  async show(id: number): Promise<User> {
     try {
       const sql = 'SELECT * FROM users WHERE id=($1)'
       //@ts-ignoreX$
@@ -65,7 +65,7 @@ export class UserStore {
     } 
   }
 
-  async delete(id: string): Promise<User> {
+  async delete(id: number): Promise<User> {
     try {
       const conn = await Client.connect()
       const sql = 'DELETE FROM users WHERE id=($1)'

@@ -9,6 +9,27 @@ const show = async (_req: Request, res: Response) => {
    res.json(order)
 }
 
+const showById = async (_req: Request, res: Response) => {
+    try {
+        const authorizationHeader  = _req.headers.authorization
+        const token = authorizationHeader!.split(' ')[1]
+        jwt.verify(token, process.env.TOKEN_SECRET)
+    } catch(err) {
+        res.status(401)
+        res.json('Access denied, invalid token')
+        return
+    }
+
+    try{
+        const userId = parseInt(_req.params.userId);
+        const currentOrder = await store.getCurrentOrderByUserId(userId);
+    return res.json(currentOrder);
+    }catch(err){
+        res.status(400)
+        res.json(err)
+    }
+}
+
 const create = async (req: Request, res: Response) => {
     try {
         const authorizationHeader  = req.headers.authorization
@@ -22,9 +43,9 @@ const create = async (req: Request, res: Response) => {
 
     try {
         const order: Order = {
-            quantity: req.body.qunatity,
-            status: req.body.user_id,
-            product_id: req.body.product_id,
+            quantity: req.body.quantity,
+            status: req.body.status,
+            products_id: req.body.products_id,
             user_id: req.body.user_id
         }
 
@@ -56,10 +77,10 @@ const destroy = async (req: Request, res: Response) => {
     }
 }
 
-const productRoutes = (app: express.Application) => {
-  app.get('/order/:id', show)
+const orderRoutes = (app: express.Application) => {
+  app.get('/order/:userId', showById)
   app.post('/order', create)
   app.delete('/order', destroy)
 }
 
-export default productRoutes
+export default orderRoutes

@@ -50,7 +50,7 @@ class ProductStore {
         });
     }
     // select product by category
-    getProductByCat(category) {
+    getProdCategory(category) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const conn = yield database_1.default.connect();

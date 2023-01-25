@@ -19,6 +19,27 @@ const show = (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const order = yield store.getCurrentOrderByUserId(_req.body.id);
     res.json(order);
 });
+const showById = (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const authorizationHeader = _req.headers.authorization;
+        const token = authorizationHeader.split(' ')[1];
+        jsonwebtoken_1.default.verify(token, process.env.TOKEN_SECRET);
+    }
+    catch (err) {
+        res.status(401);
+        res.json('Access denied, invalid token');
+        return;
+    }
+    try {
+        const userId = parseInt(_req.params.userId);
+        const currentOrder = yield store.getCurrentOrderByUserId(userId);
+        return res.json(currentOrder);
+    }
+    catch (err) {
+        res.status(400);
+        res.json(err);
+    }
+});
 const create = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const authorizationHeader = req.headers.authorization;
@@ -32,9 +53,9 @@ const create = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
     try {
         const order = {
-            quantity: req.body.qunatity,
-            status: req.body.user_id,
-            product_id: req.body.product_id,
+            quantity: req.body.quantity,
+            status: req.body.status,
+            products_id: req.body.products_id,
             user_id: req.body.user_id
         };
         const newOrder = yield store.createOrder(order);
@@ -65,9 +86,9 @@ const destroy = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         res.json({ error });
     }
 });
-const productRoutes = (app) => {
-    app.get('/order/:id', show);
+const orderRoutes = (app) => {
+    app.get('/order/:userId', showById);
     app.post('/order', create);
     app.delete('/order', destroy);
 };
-exports.default = productRoutes;
+exports.default = orderRoutes;

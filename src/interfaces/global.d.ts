@@ -7,6 +7,6 @@ namespace NodeJS {
     }
 
     interface JwtPayload {
-      _id: string
+      _id: integer
     }
   }

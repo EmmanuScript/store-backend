@@ -18,7 +18,7 @@ const users_model_1 = require("../models/users.model");
 dotenv_1.default.config({});
 const userRoutes = (app) => {
     app.get('/users', index);
-    app.get('/users/{:id}', show);
+    app.get('/users/:id', show);
     app.post('/users', create);
     app.delete('/users', destroy);
     app.post('/users/authenticate', authenticate);
@@ -30,8 +30,13 @@ const index = (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
     res.json(users);
 });
 const show = (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const user = yield store.show(_req.body.id);
-    res.json(user);
+    try {
+        const user = yield store.show(parseInt(_req.params.id));
+        res.json(user);
+    }
+    catch (err) {
+        res.json(err);
+    }
 });
 const create = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const user = {
@@ -40,8 +45,7 @@ const create = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     };
     try {
         const newUser = yield store.create(user);
-        var token = jsonwebtoken_1.default.sign({ user: newUser }, process.env.TOKEN_SECRET);
-        res.json(token);
+        res.status(201).json(newUser);
     }
     catch (err) {
         res.status(400);
@@ -70,7 +74,7 @@ const authenticate = (req, res) => __awaiter(void 0, void 0, void 0, function* (
 });
 const update = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const user = {
-        id: req.params.id,
+        id: parseInt(req.params.id),
         username: req.body.username,
         password: req.body.password,
     };
@@ -78,7 +82,7 @@ const update = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const authorizationHeader = req.headers.authorization;
         const token = authorizationHeader.split(' ')[1];
         const decoded = jsonwebtoken_1.default.verify(token, process.env.TOKEN_SECRET);
-        if ((decoded._id) !== user.id) {
+        if ((parseInt(decoded._id)) !== user.id) {
             throw new Error('User id does not match!');
         }
     }

@@ -19,6 +19,21 @@ class OrderStore {
         // define table
         this.table = 'orders';
     }
+    //select all orders
+    getAllOrders() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const conn = yield database_1.default.connect();
+                const sql = `SELECT * FROM ${this.table}`;
+                const result = yield conn.query(sql);
+                conn.release();
+                return result.rows;
+            }
+            catch (err) {
+                throw new Error(`Could not get all orders of user. Error: ${err}}`);
+            }
+        });
+    }
     // select all orders for a user
     getOrders(userId) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -49,51 +64,16 @@ class OrderStore {
             }
         });
     }
-    // Get active order by user id
-    getActiveOrdersByUserId(userId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const status = 'active';
-                const conn = yield database_1.default.connect();
-                const sql = `SELECT * FROM ${this.table} WHERE user_id = ${userId} AND status = $1`;
-                const result = yield conn.query(sql, [status]);
-                conn.release();
-                return result.rows;
-            }
-            catch (err) {
-                throw new Error(`Could not get active order. Error: ${(err)}`);
-            }
-        });
-    }
-    // select completed order by user id
-    getCompletedOrdersByUserId(userId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const status = 'complete';
-                const conn = yield database_1.default.connect();
-                const sql = `SELECT * FROM ${this.table} WHERE user_id = ${userId} AND status = $1`;
-                const result = yield conn.query(sql, [status]);
-                conn.release();
-                return result.rows;
-            }
-            catch (err) {
-                throw new Error(`Could not get completed orders. Error: ${(err)}`);
-            }
-        });
-    }
     // create an order
     createOrder(order) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                // eslint-disable-next-line camelcase
-                const { product_id, quantity, user_id, status } = order;
+                const { products_id, quantity, user_id, status } = order;
                 const conn = yield database_1.default.connect();
-                const sql = `INSERT INTO ${this.table} (product_id, quantity, user_id, status) VALUES($1, $2, $3, $4) RETURNING *`;
+                const sql = `INSERT INTO ${this.table} (products_id, quantity, user_id, status) VALUES($1, $2, $3, $4) RETURNING *`;
                 const result = yield conn.query(sql, [
-                    // eslint-disable-next-line camelcase
-                    product_id,
+                    products_id,
                     quantity,
-                    // eslint-disable-next-line camelcase
                     user_id,
                     status
                 ]);

@@ -15,7 +15,7 @@ interface JwtPayload {
 
 const userRoutes = (app: express.Application) => {
     app.get('/users', index)
-    app.get('/users/{:id}', show)
+    app.get('/users/:id', show)
     app.post('/users', create)
     app.delete('/users', destroy)
     app.post('/users/authenticate', authenticate)
@@ -30,8 +30,14 @@ const index = async (_req: Request, res: Response) => {
 }
 
 const show = async (_req: Request, res: Response) => {
-    const user = await store.show(_req.body.id)
-    res.json(user)
+    try{
+        const user = await store.show(parseInt(_req.params.id))
+        res.json(user)
+    }catch(err){
+        res.json(err)
+    }
+   
+  
 }
 
 
@@ -43,8 +49,7 @@ const create = async (req: Request, res: Response) => {
     }
     try {
         const newUser = await store.create(user)
-        var token = jwt.sign({ user: newUser }, process.env.TOKEN_SECRET);
-        res.json(token)
+        res.status(201).json(newUser)
     } catch(err) {
         res.status(400)
         console.log(err)
@@ -74,7 +79,7 @@ const authenticate = async (req: Request, res: Response) => {
 
   const update = async (req: Request, res: Response) => {
     const user: User = {
-        id: req.params.id,
+        id: parseInt(req.params.id),
         username: req.body.username,
         password: req.body.password,
     }
@@ -82,7 +87,7 @@ const authenticate = async (req: Request, res: Response) => {
         const authorizationHeader = req.headers.authorization
         const token = authorizationHeader!.split(' ')[1]
         const decoded = jwt.verify(token, process.env.TOKEN_SECRET) as JwtPayload
-        if((decoded._id) !== user.id) {
+        if((parseInt(decoded._id)) !== user.id) {
             throw new Error('User id does not match!')
         }
     } catch(err) {
